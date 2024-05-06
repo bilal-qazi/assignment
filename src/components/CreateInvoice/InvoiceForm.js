@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 import InputAdornment from '@mui/material/InputAdornment';
 import Autocomplete from '@mui/material/Autocomplete';
 import 'react-datepicker/dist/react-datepicker.css';
-import { divideArrayIntoChunks } from '../../utils';
+import { divideArrayIntoChunks, generateRandomId } from '../../utils';
 
 const CHUNK_SIZE = 31;
 function InvoiceForm() {
@@ -52,6 +52,7 @@ function InvoiceForm() {
 
   const createDefaultItems = (numItems = 31) => {
     return Array.from({ length: numItems }, () => ({
+      id: generateRandomId(),
       lot_no: '',
       description: '',
       quantity: '',
@@ -116,12 +117,13 @@ function InvoiceForm() {
       return numericValue;
     };
 
+    console.log('xx- form', formData.items);
     const formattedValue =
       name === 'price_each' ? formatPriceEach(value) : value;
     setFormData((prevData) => {
       if (index !== undefined) {
         const updatedItems = prevData.items.map((item, idx) => {
-          if (idx === index) {
+          if (item?.id === index) {
             return { ...item, [name]: formattedValue };
           }
           return item;
@@ -150,6 +152,7 @@ function InvoiceForm() {
 
   const handleAddItem = () => {
     const newItems = Array.from({ length: 30 }, () => ({
+      id: generateRandomId(),
       lot_no: '',
       description: '',
       quantity: '',
@@ -200,7 +203,6 @@ function InvoiceForm() {
   useEffect(() => {
     fieldRefs.current = fieldRefs.current.slice(0, formData.bill_to.length);
   }, [formData.bill_to]);
-
   const updateBillToField = (index, value) => {
     setFormData((prevData) => {
       const updatedBillTo = [...prevData.bill_to];
@@ -326,7 +328,7 @@ function InvoiceForm() {
       const formattedValue = formatPriceEach(value);
       setFormData((prevData) => {
         const updatedItems = prevData.items.map((item, idx) => {
-          if (idx === index) {
+          if (item?.id === index) {
             return { ...item, [name]: formattedValue };
           }
           return item;
@@ -360,6 +362,7 @@ function InvoiceForm() {
   const chunkedArray = () => {
     return divideArrayIntoChunks(formData, CHUNK_SIZE);
   };
+
   return (
     <div id='invoice-generated'>
       <div style={{ display: 'flex', marginBottom: '50px' }}>
@@ -467,6 +470,10 @@ function InvoiceForm() {
                                         inputRef={(el) =>
                                           (fieldRefs.current[fieldIndex] = el)
                                         }
+                                        InputProps={{
+                                          disableUnderline: true,
+                                          style: { textAlign: 'center' },
+                                        }}
                                         onKeyDown={(e) =>
                                           handleBillToEnterKey(e, fieldIndex)
                                         }
@@ -662,7 +669,6 @@ function InvoiceForm() {
                           />
                         </div>
                       </div>
-
                       <div className='line'></div>
                       <div className='row item_details_div'>
                         <span className='plus-icon' onClick={handleAddItem}>
@@ -695,19 +701,20 @@ function InvoiceForm() {
                           <b>Amount</b>
                         </div>
                       </div>
-
                       {outerItem.items.map((item, innerIndex) => {
                         return (
                           <div
                             className='row'
                             style={{
-                              marginTop: innerIndex === 0 ? '6%' : '0px',
+                              display: 'flex',
+
+                              marginTop: innerIndex === 0 ? '2%' : '0px',
                             }}
                           >
                             <div className='col-md-3'>
                               <TextField
-                                id={`lot_no_${innerIndex}`}
-                                key={innerIndex}
+                                id={`lot_no_${item?.id}`}
+                                key={item?.id}
                                 ref={(el) =>
                                   (inputRefs.current[innerIndex] = el)
                                 }
@@ -723,9 +730,7 @@ function InvoiceForm() {
                                     innerIndex
                                   )
                                 }
-                                onChange={(e) =>
-                                  handleInputChange(innerIndex, e)
-                                }
+                                onChange={(e) => handleInputChange(item?.id, e)}
                                 style={{
                                   width: `${Math.max(
                                     30,
@@ -746,12 +751,12 @@ function InvoiceForm() {
                             </div>
                             <div className='col-md-5'>
                               <Autocomplete
-                                id={`description_${innerIndex}`}
+                                id={`description_${item?.id}`}
                                 freeSolo
                                 options={descriptions}
                                 value={item.description || ''}
                                 onChange={(event, newValue) => {
-                                  handleInputChange(innerIndex, {
+                                  handleInputChange(item?.id, {
                                     target: {
                                       name: 'description',
                                       value: newValue,
@@ -764,7 +769,7 @@ function InvoiceForm() {
                                   reason
                                 ) => {
                                   if (reason === 'input') {
-                                    handleInputChange(innerIndex, {
+                                    handleInputChange(item?.id, {
                                       target: {
                                         name: 'description',
                                         value: newInputValue,
@@ -776,10 +781,12 @@ function InvoiceForm() {
                                   <TextField
                                     {...params}
                                     variant='standard'
+                                    type='text'
                                     style={{
                                       marginTop:
                                         innerIndex === 0 ? '-10px' : '-10px',
                                       width: '100%',
+                                      marginLeft: '100px',
                                     }}
                                     onKeyDown={(event) =>
                                       handleEnterKeyPress(
@@ -788,26 +795,28 @@ function InvoiceForm() {
                                         innerIndex
                                       )
                                     }
+                                    InputProps={{
+                                      disableUnderline: true,
+                                      style: { textAlign: 'center' },
+                                    }}
                                   />
                                 )}
                               />
                             </div>
                             <div className='col-md-1 text-center'>
                               <TextField
-                                id={`quantity_${innerIndex}`}
+                                id={`quantity_${item?.id}`}
                                 variant='standard'
                                 type='text'
                                 name='quantity'
                                 value={item.quantity}
                                 autoComplete='off'
-                                onChange={(e) =>
-                                  handleInputChange(innerIndex, e)
-                                }
+                                onChange={(e) => handleInputChange(item?.id, e)}
                                 InputProps={{
                                   disableUnderline: true,
                                   style: { textAlign: 'center' },
                                 }}
-                                style={{ width: '100%', marginLeft: '45px' }}
+                                style={{ width: '100%', marginLeft: '40px' }}
                                 onKeyDown={(event) =>
                                   handleEnterKeyPress(
                                     event,
@@ -822,15 +831,13 @@ function InvoiceForm() {
                               style={{ position: 'relative' }}
                             >
                               <TextField
-                                id={`price_each_${innerIndex}`}
+                                id={`price_each_${item?.id}`}
                                 variant='standard'
                                 type='text'
                                 name='price_each'
                                 value={item.price_each}
-                                onChange={(e) =>
-                                  handleInputChange(innerIndex, e)
-                                }
-                                onBlur={(e) => handleInputBlur(innerIndex, e)}
+                                onChange={(e) => handleInputChange(item?.id, e)}
+                                onBlur={(e) => handleInputBlur(item?.id, e)}
                                 style={{ width: '60%', marginLeft: '33px' }}
                                 autoComplete='off'
                                 InputProps={{
@@ -885,66 +892,62 @@ function InvoiceForm() {
                                     ).toFixed(2)}`
                                   : ''}
                               </p>
-                            </div>
+                            </div>{' '}
                           </div>
                         );
-                      })}
-                    </div>{' '}
+                      })}{' '}
+                      <div
+                        className='invoice-last-div px-1'
+                        style={{
+                          marginTop:
+                            formData.items.length === 2
+                              ? '1000px'
+                              : formData.items.length >= 3 &&
+                                formData.items.length <= 5
+                              ? '600px'
+                              : formData.items.length >= 6 &&
+                                formData.items.length <= 8
+                              ? '500px'
+                              : formData.items.length >= 9 &&
+                                formData.items.length <= 11
+                              ? '220px'
+                              : formData.items.length >= 12 &&
+                                formData.items.length <= 14
+                              ? '6px'
+                              : formData.items.length >= 15 &&
+                                formData.items.length <= 16
+                              ? '2px'
+                              : formData.items.length >= 17 &&
+                                formData.items.length <= 18
+                              ? '2px'
+                              : formData.items.length >= 19 &&
+                                formData.items.length <= 20
+                              ? '2px'
+                              : formData.items.length >= 21 &&
+                                formData.items.length <= 30
+                              ? '2px'
+                              : formData.items.length > 31
+                              ? '0px'
+                              : '0px',
+                        }}
+                      >
+                        <p style={{ marginRight: '70px', marginTop: '30px' }}>
+                          Total Due:{' '}
+                          {`$${outerItem?.total_amount?.toFixed(2) || ''}`}
+                        </p>
+                        <h5
+                          style={{
+                            fontSize: '25px',
+                            fontWeight: '600',
+                            marginTop: '-20px',
+                          }}
+                        >
+                          Thank You! We truly appreciate your business!
+                        </h5>
+                      </div>{' '}
+                    </div>
                   </>
-                ))}
-              </div>
-
-              <div
-                className='invoice-last-div px-3'
-                style={{
-                  marginTop:
-                    formData.items.length === 2
-                      ? '1000px'
-                      : formData.items.length >= 3 && formData.items.length <= 5
-                      ? '600px'
-                      : formData.items.length >= 6 && formData.items.length <= 8
-                      ? '500px'
-                      : formData.items.length >= 9 &&
-                        formData.items.length <= 11
-                      ? '220px'
-                      : formData.items.length >= 12 &&
-                        formData.items.length <= 14
-                      ? '6px'
-                      : formData.items.length >= 15 &&
-                        formData.items.length <= 16
-                      ? '2px'
-                      : formData.items.length >= 17 &&
-                        formData.items.length <= 18
-                      ? '2px'
-                      : formData.items.length >= 19 &&
-                        formData.items.length <= 20
-                      ? '2px'
-                      : formData.items.length >= 21 &&
-                        formData.items.length <= 30
-                      ? '2px'
-                      : formData.items.length > 31
-                      ? '0px'
-                      : '0px',
-                }}
-              >
-                <p
-                  style={{
-                    marginRight: '70px',
-                    // marginTop: formData.items.length > 17 ? "30%" : "0px"
-                    marginTop: '30px',
-                  }}
-                >
-                  Total Due: {`$${formData?.total_amount?.toFixed(2) || ''}`}
-                </p>
-                <h5
-                  style={{
-                    fontSize: '25px',
-                    fontWeight: '600',
-                    marginTop: '-20px',
-                  }}
-                >
-                  Thank You! We truly appreciate your business!
-                </h5>
+                ))}{' '}
               </div>
             </div>
           </form>
