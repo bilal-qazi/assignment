@@ -109,6 +109,7 @@ function InvoiceGenerated() {
   const chunkedArray = () => {
     return divideArrayIntoChunks(formData, CHUNK_SIZE);
   };
+
   return (
     <div id='invoice-generated'>
       <div className='row'>
@@ -251,7 +252,6 @@ function InvoiceGenerated() {
                       <div className='mt-2'>{formData.job_location}</div>
                     </div>
                   </div>
-
                   <div className='line'></div>
                   <div className='row item_details_div'>
                     <span className='plus-icon'>
@@ -386,57 +386,65 @@ function InvoiceGenerated() {
                         </p>
                       </div>
                     </div>
-                  ))}
+                  ))}{' '}
+                  <div
+                    className='invoice-last-div px-3'
+                    style={{
+                      marginTop:
+                        formData.items.length === 2
+                          ? '1000px'
+                          : formData.items.length >= 3 &&
+                            formData.items.length <= 5
+                          ? '600px'
+                          : formData.items.length >= 6 &&
+                            formData.items.length <= 8
+                          ? '500px'
+                          : formData.items.length >= 9 &&
+                            formData.items.length <= 11
+                          ? '220px'
+                          : formData.items.length >= 12 &&
+                            formData.items.length <= 14
+                          ? '6px'
+                          : formData.items.length >= 15 &&
+                            formData.items.length <= 16
+                          ? '0px'
+                          : formData.items.length >= 17 &&
+                            formData.items.length <= 18
+                          ? '2px'
+                          : formData.items.length >= 19 &&
+                            formData.items.length <= 20
+                          ? '2px'
+                          : formData.items.length >= 21 &&
+                            formData.items.length <= 30
+                          ? '2px'
+                          : formData.items.length > 31
+                          ? '0px'
+                          : '0px',
+                    }}
+                  >
+                    <p
+                      style={{
+                        marginRight: '70px',
+                        // marginTop: formData.items.length > 17 ? "30%" : "0px"
+                        marginTop: '70px',
+                      }}
+                    >
+                      Total Due:{' '}
+                      {`$${formData?.total_amount?.toFixed(2) || ''}`}
+                    </p>
+                    <h5
+                      style={{
+                        fontSize: '25px',
+                        fontWeight: '600',
+                        marginTop: '-50px',
+                      }}
+                    >
+                      Thank You! We truly appreciate your business!
+                    </h5>
+                  </div>
                 </div>
               </>
             ))}
-          </div>
-
-          <div
-            className='invoice-last-div px-3'
-            style={{
-              marginTop:
-                formData.items.length === 2
-                  ? '1000px'
-                  : formData.items.length >= 3 && formData.items.length <= 5
-                  ? '600px'
-                  : formData.items.length >= 6 && formData.items.length <= 8
-                  ? '500px'
-                  : formData.items.length >= 9 && formData.items.length <= 11
-                  ? '220px'
-                  : formData.items.length >= 12 && formData.items.length <= 14
-                  ? '6px'
-                  : formData.items.length >= 15 && formData.items.length <= 16
-                  ? '0px'
-                  : formData.items.length >= 17 && formData.items.length <= 18
-                  ? '2px'
-                  : formData.items.length >= 19 && formData.items.length <= 20
-                  ? '2px'
-                  : formData.items.length >= 21 && formData.items.length <= 30
-                  ? '2px'
-                  : formData.items.length > 31
-                  ? '0px'
-                  : '0px',
-            }}
-          >
-            <p
-              style={{
-                marginRight: '70px',
-                // marginTop: formData.items.length > 17 ? "30%" : "0px"
-                marginTop: '70px',
-              }}
-            >
-              Total Due: {`$${formData?.total_amount?.toFixed(2) || ''}`}
-            </p>
-            <h5
-              style={{
-                fontSize: '25px',
-                fontWeight: '600',
-                marginTop: '-50px',
-              }}
-            >
-              Thank You! We truly appreciate your business!
-            </h5>
           </div>
         </div>
       </div>
